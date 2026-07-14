@@ -1,0 +1,12 @@
+{
+  "name": "native-json-i18n/language-switcher",
+  "title": "Language Switcher",
+  "category": "widgets",
+  "icon": "translation",
+  "description": "A visual language switcher for the multilingual site.",
+  "supports": {
+    "html": false
+  },
+  "editorScript": "file:./editor.js",
+  "render": "file:./render.php"
+}

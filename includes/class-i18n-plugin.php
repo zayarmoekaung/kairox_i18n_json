@@ -34,6 +34,9 @@ class Native_JSON_i18n_Plugin {
 		$this->admin = new Native_JSON_i18n_Admin( $this->config, $this->storage );
 		$this->runtime = new Native_JSON_i18n_Runtime( $this->config, $this->storage );
 
+		global $native_i18n_plugin_instance;
+		$native_i18n_plugin_instance = $this;
+
 		$this->register_hooks();
 	}
 
@@ -43,6 +46,8 @@ class Native_JSON_i18n_Plugin {
 	private function register_hooks() {
 		add_action( 'init', array( $this, 'bootstrap' ) );
 		add_action( 'init', array( $this, 'handle_i18n_cookie_routing' ) );
+		add_action( 'init', array( $this, 'register_blocks' ) );
+		add_action( 'init', array( $this, 'register_elementor_widgets' ) );
 
 		$this->admin->register_hooks();
 		$this->runtime->register_hooks();
@@ -55,6 +60,35 @@ class Native_JSON_i18n_Plugin {
 		$this->storage->ensure_storage_directory();
 		$this->ensure_default_config();
 		$this->storage->ensure_default_language_file( $this->config->get_default_language() );
+	}
+
+	/**
+	 * Register the WordPress block for the language switcher.
+	 */
+	public function register_blocks() {
+		$block_dir = dirname( __DIR__ ) . '/includes/blocks/language-switcher';
+		if ( file_exists( $block_dir . '/block.json' ) ) {
+			register_block_type( $block_dir );
+		}
+	}
+
+	/**
+	 * Register the Elementor widget for the language switcher.
+	 */
+	public function register_elementor_widgets() {
+		if ( ! class_exists( '\Elementor\Widget_Base' ) ) {
+			return;
+		}
+
+		$widget_file = dirname( __DIR__ ) . '/includes/elementor/class-i18n-language-switcher-widget.php';
+		if ( ! file_exists( $widget_file ) ) {
+			return;
+		}
+
+		add_action( 'elementor/widgets/register', function( $widgets_manager ) use ( $widget_file ) {
+			require_once $widget_file;
+			$widgets_manager->register( new Native_JSON_i18n_Elementor_Language_Switcher_Widget() );
+		} );
 	}
 
 	/**

@@ -113,27 +113,75 @@ class Native_JSON_i18n_Runtime {
 	}
 
 	/**
-	 * Render the language switcher shortcode.
+	 * Render the language switcher shortcode or block/widget output.
 	 *
+	 * @param array  $attributes Optional rendering attributes.
+	 * @param string $content    Optional content block.
 	 * @return string
 	 */
-	public function render_language_switcher() {
+	public function render_language_switcher( $attributes = array(), $content = '' ) {
 		$config = $this->config->get_i18n_config();
 		$current_lang = $this->get_current_runtime_lang();
 		$current_url = remove_query_arg( 'lang' );
-		$output = '<div class="custom-lang-switcher">';
+
+		$layout = isset( $attributes['layout'] ) ? sanitize_key( $attributes['layout'] ) : 'horizontal';
+		$show_labels = isset( $attributes['show_labels'] ) ? filter_var( $attributes['show_labels'], FILTER_VALIDATE_BOOLEAN ) : true;
+		$text_color = isset( $attributes['text_color'] ) ? sanitize_text_field( $attributes['text_color'] ) : '';
+		$background_color = isset( $attributes['background_color'] ) ? sanitize_text_field( $attributes['background_color'] ) : '';
+		$border_radius = isset( $attributes['border_radius'] ) ? sanitize_text_field( $attributes['border_radius'] ) : '4px';
+		$padding = isset( $attributes['padding'] ) ? sanitize_text_field( $attributes['padding'] ) : '8px 12px';
+		$gap = isset( $attributes['gap'] ) ? sanitize_text_field( $attributes['gap'] ) : '8px';
+		$font_size = isset( $attributes['font_size'] ) ? sanitize_text_field( $attributes['font_size'] ) : '14px';
+		$class_name = isset( $attributes['className'] ) ? sanitize_html_class( $attributes['className'] ) : '';
+
+		$classes = array( 'custom-lang-switcher', 'custom-lang-switcher--' . $layout );
+		if ( $class_name ) {
+			$classes[] = $class_name;
+		}
+
+		$wrapper_style = array( 'display:flex', 'gap:' . $gap );
+		if ( 'vertical' === $layout ) {
+			$wrapper_style[] = 'flex-direction:column';
+		} else {
+			$wrapper_style[] = 'flex-direction:row';
+		}
+
+		$link_style = array();
+		if ( $text_color ) {
+			$link_style[] = 'color:' . $text_color;
+		}
+		if ( $background_color ) {
+			$link_style[] = 'background-color:' . $background_color;
+		}
+		if ( $border_radius ) {
+			$link_style[] = 'border-radius:' . $border_radius;
+		}
+		if ( $padding ) {
+			$link_style[] = 'padding:' . $padding;
+		}
+		if ( $font_size ) {
+			$link_style[] = 'font-size:' . $font_size;
+		}
+
+		$output = sprintf(
+			'<div class="%s" style="%s">',
+			esc_attr( implode( ' ', $classes ) ),
+			esc_attr( implode( '; ', $wrapper_style ) )
+		);
 
 		foreach ( $config['allowed'] as $code ) {
 			$active_class = ( $current_lang === $code ) ? 'is-active' : '';
 			$switch_url = add_query_arg( 'lang', $code, $current_url );
 			$name = isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : strtoupper( $code );
+			$label = $show_labels ? $name : strtoupper( $code );
 
 			$output .= sprintf(
-				'<a href="%s" class="lang-link %s" data-lang="%s">%s</a>',
+				'<a href="%s" class="lang-link %s" data-lang="%s" style="%s">%s</a>',
 				esc_url( $switch_url ),
 				esc_attr( $active_class ),
 				esc_attr( $code ),
-				esc_html( $name )
+				esc_attr( implode( '; ', $link_style ) ),
+				esc_html( $label )
 			);
 		}
 
