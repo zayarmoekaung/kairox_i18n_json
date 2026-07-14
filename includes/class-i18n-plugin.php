@@ -48,6 +48,7 @@ class Native_JSON_i18n_Plugin {
 		add_action( 'init', array( $this, 'handle_i18n_cookie_routing' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_elementor_widgets' ) );
+		add_action( 'widgets_init', array( $this, 'register_wp_widget' ) );
 
 		$this->admin->register_hooks();
 		$this->runtime->register_hooks();
@@ -68,7 +69,25 @@ class Native_JSON_i18n_Plugin {
 	public function register_blocks() {
 		$block_dir = dirname( __DIR__ ) . '/includes/blocks/language-switcher';
 		if ( file_exists( $block_dir . '/block.json' ) ) {
-			register_block_type( $block_dir );
+			$script_handle = 'native-json-i18n-language-switcher-editor';
+			$script_path = $block_dir . '/editor.js';
+			if ( file_exists( $script_path ) ) {
+				wp_register_script(
+					$script_handle,
+					plugins_url( 'includes/blocks/language-switcher/editor.js', dirname( __DIR__ ) . '/kairox_i18n_json.php' ),
+					array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-i18n' ),
+					filemtime( $script_path ),
+					true
+				);
+			}
+
+			register_block_type_from_metadata(
+				$block_dir,
+				array(
+					'render_callback' => array( $this->runtime, 'render_language_switcher' ),
+					'editor_script' => $script_handle,
+				)
+			);
 		}
 	}
 
@@ -89,6 +108,14 @@ class Native_JSON_i18n_Plugin {
 			require_once $widget_file;
 			$widgets_manager->register( new Native_JSON_i18n_Elementor_Language_Switcher_Widget() );
 		} );
+	}
+
+	/**
+	 * Register the classic WordPress widget as a fallback.
+	 */
+	public function register_wp_widget() {
+		require_once dirname( __DIR__ ) . '/includes/class-i18n-widget.php';
+		register_widget( 'Native_JSON_i18n_Language_Switcher_Widget' );
 	}
 
 	/**
