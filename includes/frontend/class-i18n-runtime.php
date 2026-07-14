@@ -139,13 +139,7 @@ class Native_JSON_i18n_Runtime {
 			$classes[] = $class_name;
 		}
 
-		$wrapper_style = array( 'display:flex', 'gap:' . $gap );
-		if ( 'vertical' === $layout ) {
-			$wrapper_style[] = 'flex-direction:column';
-		} else {
-			$wrapper_style[] = 'flex-direction:row';
-		}
-
+		$wrapper_style = array( 'display:inline-block', 'position:relative' );
 		$link_style = array();
 		if ( $text_color ) {
 			$link_style[] = 'color:' . $text_color;
@@ -163,30 +157,125 @@ class Native_JSON_i18n_Runtime {
 			$link_style[] = 'font-size:' . $font_size;
 		}
 
-		$output = sprintf(
-			'<div class="%s" style="%s">',
-			esc_attr( implode( ' ', $classes ) ),
-			esc_attr( implode( '; ', $wrapper_style ) )
-		);
-
+		$flag_data = $this->load_flag_data();
+		$menu_items = array();
 		foreach ( $config['allowed'] as $code ) {
 			$active_class = ( $current_lang === $code ) ? 'is-active' : '';
 			$switch_url = add_query_arg( 'lang', $code, $current_url );
-			$name = isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : strtoupper( $code );
+			$flag_meta = isset( $flag_data[ $code ] ) ? $flag_data[ $code ] : array( 'name' => strtoupper( $code ), 'flag' => '🌐' );
+			$name = isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : $flag_meta['name'];
 			$label = $show_labels ? $name : strtoupper( $code );
-
-			$output .= sprintf(
-				'<a href="%s" class="lang-link %s" data-lang="%s" style="%s">%s</a>',
+			$flag = $this->get_flag_markup( $code, $flag_data );
+			$menu_items[] = sprintf(
+				'<li class="lang-menu-item %s"><a href="%s" class="lang-link %s" data-lang="%s" style="%s">%s %s</a></li>',
+				esc_attr( $active_class ),
 				esc_url( $switch_url ),
 				esc_attr( $active_class ),
 				esc_attr( $code ),
 				esc_attr( implode( '; ', $link_style ) ),
+				esc_html( $flag ),
 				esc_html( $label )
 			);
 		}
 
-		$output .= '</div>';
+		$styles = '<style>
+			.custom-lang-switcher { display:inline-block; position:relative; font-family:inherit; }
+			.custom-lang-switcher .lang-switcher-trigger {
+				border:1px solid rgba(0,0,0,0.15);
+				background:#fff;
+				cursor:pointer;
+				padding:8px 12px;
+				font-weight:600;
+				line-height:1;
+				display:inline-flex;
+				align-items:center;
+				gap:6px;
+			}
+			.custom-lang-switcher .lang-switcher-menu {
+				list-style:none;
+				margin:4px 0 0;
+				padding:6px;
+				position:absolute;
+				top:100%;
+				left:0;
+				background:#fff;
+				border:1px solid rgba(0,0,0,0.12);
+				border-radius:8px;
+				box-shadow:0 8px 24px rgba(0,0,0,0.12);
+				min-width:160px;
+				opacity:0;
+				visibility:hidden;
+				transform:translateY(-6px);
+				transition:all 0.2s ease;
+				z-index:999;
+			}
+			.custom-lang-switcher:hover .lang-switcher-menu,
+			.custom-lang-switcher:focus-within .lang-switcher-menu {
+				opacity:1;
+				visibility:visible;
+				transform:translateY(0);
+			}
+			.custom-lang-switcher .lang-menu-item a {
+				display:flex;
+				align-items:center;
+				gap:8px;
+				text-decoration:none;
+				padding:6px 8px;
+				border-radius:6px;
+			}
+			.custom-lang-switcher .lang-menu-item a:hover {
+				background:rgba(0,0,0,0.05);
+			}
+		</style>';
+
+		$current_flag_meta = isset( $flag_data[ $current_lang ] ) ? $flag_data[ $current_lang ] : array( 'name' => strtoupper( $current_lang ), 'flag' => '🌐' );
+		$current_label = $show_labels ? ( isset( $config['labels'][ $current_lang ] ) ? $config['labels'][ $current_lang ] : $current_flag_meta['name'] ) : strtoupper( $current_lang );
+
+		$output = sprintf(
+			'<div class="%s" style="%s">%s<button type="button" class="lang-switcher-trigger" style="%s">%s</button><ul class="lang-switcher-menu">%s</ul></div>',
+			esc_attr( implode( ' ', $classes ) ),
+			esc_attr( implode( '; ', $wrapper_style ) ),
+			$styles,
+			esc_attr( implode( '; ', $link_style ) ),
+			esc_html( $this->get_flag_markup( $current_lang, $flag_data ) . ' ' . $current_label ),
+			implode( '', $menu_items )
+		);
 		return $output;
+	}
+
+	/**
+	 * Load flag metadata from a JSON file.
+	 *
+	 * @return array
+	 */
+	private function load_flag_data() {
+		$path = dirname( __FILE__ ) . '/flags.json';
+		if ( ! file_exists( $path ) ) {
+			return array();
+		}
+
+		$contents = file_get_contents( $path );
+		if ( false === $contents ) {
+			return array();
+		}
+
+		$data = json_decode( $contents, true );
+		return is_array( $data ) ? $data : array();
+	}
+
+	/**
+	 * Return a flag markup for a language code.
+	 *
+	 * @param string $code
+	 * @param array  $flag_data
+	 * @return string
+	 */
+	private function get_flag_markup( $code, $flag_data = array() ) {
+		if ( isset( $flag_data[ $code ]['flag'] ) && ! empty( $flag_data[ $code ]['flag'] ) ) {
+			return $flag_data[ $code ]['flag'];
+		}
+
+		return '🌐';
 	}
 
 	/**
