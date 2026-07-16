@@ -226,13 +226,13 @@ class Native_JSON_i18n_Admin {
 		$file_path = $this->storage->get_language_file_path( $selected );
 		$editor_data = file_exists( $file_path ) ? file_get_contents( $file_path ) : '{}';
 		?>
-		<div class="wrap regular-i18n-dashboard">
-			<h1>JSON i18n Native Architecture Framework Dashboard</h1>
-			<p class="description">Zero database row duplication for your Elementor projects. Build once, localize globally.</p>
+<div class="wrap regular-i18n-dashboard">
+    <h1>JSON i18n Native Architecture Framework Dashboard</h1>
+    <p class="description">Zero database row duplication for your Elementor projects. Build once, localize globally.</p>
 
-			<?php if ( isset( $_GET['status'] ) ) : ?>
-				<div class="notice notice-success is-dismissible">
-					<p><?php
+    <?php if ( isset( $_GET['status'] ) ) : ?>
+    <div class="notice notice-success is-dismissible">
+        <p><?php
 						$status = sanitize_key( wp_unslash( $_GET['status'] ) );
 						if ( 'saved' === $status ) {
 							echo 'JSON schema changes compiled and written safely to configuration file.';
@@ -244,81 +244,101 @@ class Native_JSON_i18n_Admin {
 							echo 'Language JSON file deleted and locale tracking removed.';
 						}
 					?></p>
-				</div>
-			<?php endif; ?>
+    </div>
+    <?php endif; ?>
 
-			<div style="display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;">
-				<div style="flex:1; min-width:280px; background:#fff; padding:20px; border:1px solid #ccd0d4; border-radius:4px; box-shadow:0 1px 1px rgba(0,0,0,.04);">
-					<h3>Add System Language Tracking</h3>
-					<form method="POST" action="">
-						<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-						<p>
-							<label>ISO Language Code (e.g., 'th', 'fr', 'my')</label><br/>
-							<input type="text" name="new_lang_code" style="width:100%;" required placeholder="es" />
-						</p>
-						<p>
-							<label>Display Label Name</label><br/>
-							<input type="text" name="new_lang_label" style="width:100%;" required placeholder="Español" />
-						</p>
-						<input type="submit" name="add_lang_btn" class="button button-secondary" value="Add New Locale Target" />
-					</form>
+    <div style="display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;">
+        <div
+            style="flex:1; min-width:280px; background:#fff; padding:20px; border:1px solid #ccd0d4; border-radius:4px; box-shadow:0 1px 1px rgba(0,0,0,.04);">
+            <h3>Add System Language Tracking</h3>
+            <form method="POST" action="">
+                <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                <p>
+                    <label>ISO Language Code (e.g., 'th', 'fr', 'my')</label><br />
+                    <input type="text" name="new_lang_code" style="width:100%;" required placeholder="es" />
+                </p>
+                <p>
+                    <label>Display Label Name</label><br />
+                    <input type="text" name="new_lang_label" style="width:100%;" required placeholder="Español" />
+                </p>
+                <input type="submit" name="add_lang_btn" class="button button-secondary"
+                    value="Add New Locale Target" />
+            </form>
 
-					<hr style="margin:25px 0; border:none; border-top:1px solid #eee;" />
+            <hr style="margin:25px 0; border:none; border-top:1px solid #eee;" />
 
-					<h3>Managed Locales</h3>
-					<ul style="padding:0; margin:0; list-style:none;">
-						<?php foreach ( $config['allowed'] as $code ) : ?>
-							<li style="margin-bottom:8px; padding:10px; background:<?php echo $selected === $code ? '#f0f6fa' : '#fafafa'; ?>; border:1px solid <?php echo $selected === $code ? '#007cba' : '#ddd'; ?>; border-radius:3px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
-								<strong><?php echo esc_html( isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : strtoupper( $code ) ); ?> (<code><?php echo esc_html( $code ); ?></code>)</strong>
-								<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-									<a href="<?php echo esc_url( add_query_arg( 'edit_lang', $code ) ); ?>" class="button button-small <?php echo $selected === $code ? 'button-primary' : ''; ?>">Edit JSON</a>
-									<?php if ( isset( $config['default'] ) && $config['default'] !== $code ) : ?>
-										<form method="POST" action="" style="margin:0; display:inline;">
-											<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-											<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $code ); ?>" />
-											<input type="submit" name="delete_json_btn" class="button button-small button-danger" value="Delete" onclick="return confirm('Delete this locale and remove its JSON file?');" />
-										</form>
-									<?php endif; ?>
-								</div>
-							</li>
-						<?php endforeach; ?>
-					</ul>
-				</div>
+            <h3>Managed Locales</h3>
+            <ul style="padding:0; margin:0; list-style:none;">
+                <?php foreach ( $config['allowed'] as $code ) : ?>
+                <li
+                    style="margin-bottom:8px; padding:10px; background:<?php echo $selected === $code ? '#f0f6fa' : '#fafafa'; ?>; border:1px solid <?php echo $selected === $code ? '#007cba' : '#ddd'; ?>; border-radius:3px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <strong><?php echo esc_html( isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : strtoupper( $code ) ); ?>
+                        (<code><?php echo esc_html( $code ); ?></code>)</strong>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <a href="<?php echo esc_url( add_query_arg( 'edit_lang', $code ) ); ?>"
+                            class="button button-small <?php echo $selected === $code ? 'button-primary' : ''; ?>">Edit
+                            JSON</a>
+                        <?php if ( isset( $config['default'] ) && $config['default'] !== $code ) : ?>
+                        <form method="POST" action="" style="margin:0; display:inline;">
+                            <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                            <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $code ); ?>" />
+                            <input type="submit" name="delete_json_btn" class="button button-small button-danger"
+                                value="Delete"
+                                onclick="return confirm('Delete this locale and remove its JSON file?');" />
+                        </form>
+                        <?php endif; ?>
+                    </div>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
 
-				<div style="flex:3; min-width:320px; background:#fff; padding:25px; border:1px solid #ccd0d4; border-radius:4px; box-shadow:0 1px 1px rgba(0,0,0,.04);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-						<h2 style="margin:0;">Editing Dictionary Configuration Asset: <span style="color:#007cba;"><?php echo esc_html( strtoupper( $selected ) ); ?></span></h2>
-					</div>
+        <div
+            style="flex:3; min-width:320px; background:#fff; padding:25px; border:1px solid #ccd0d4; border-radius:4px; box-shadow:0 1px 1px rgba(0,0,0,.04);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0;">Editing Dictionary Configuration Asset: <span
+                        style="color:#007cba;"><?php echo esc_html( strtoupper( $selected ) ); ?></span></h2>
+            </div>
 
-				<div style="background:#f6f7f7; padding:12px; margin-bottom:15px; border-left:4px solid #72777c; display:flex; flex-direction:row; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-							<form method="POST" action="" style="margin:0;">
-							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
-							<input type="submit" name="export_json_btn" class="button button-secondary" value="⬇ Export Raw JSON File" />
-						</form>
+            <div
+                style="background:#f6f7f7; padding:12px; margin-bottom:15px; border-left:4px solid #72777c; display:flex; flex-direction:row; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <form method="POST" action="" style="margin:0;">
+                    <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                    <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+                    <input type="submit" name="export_json_btn" class="button button-secondary"
+                        value="⬇ Export Raw JSON File" />
+                </form>
 
-						<form method="POST" action="" enctype="multipart/form-data" style="margin:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
-							<input type="file" name="import_file" accept=".json" required style="max-width:220px;" />
-							<input type="submit" name="import_json_btn" class="button button-secondary" value="⬆ Overwrite via Import" onclick="return confirm('Warning: Proceeding will instantly clear and replace all current keys for this language file. Continue?');" />
-						</form>
+                <form method="POST" action="" enctype="multipart/form-data"
+                    style="margin:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                    <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+                    <input type="file" name="import_file" accept=".json" required style="max-width:220px;" />
+                    <input type="submit" name="import_json_btn" class="button button-secondary"
+                        value="⬆ Overwrite via Import"
+                        onclick="return confirm('Warning: Proceeding will instantly clear and replace all current keys for this language file. Continue?');" />
+                </form>
 
-						<form method="POST" action="" style="margin:0;">
-							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
-							<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
-						</form>
-					
-				<div style="margin-bottom:15px;width: 100%;">
-					<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
-				</div>
-
-				<input type="submit" name="save_json_btn" class="button button-primary button-large" value="Commit Matrix Code Updates" />
-					</form>
-				</div>
-			</div>
-		</div>
-		<?php
+                <form method="POST" action="" style="margin:0;">
+                    <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                    <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+                    <input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File"
+                        onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
+                </form>
+                <form method="POST" action="">
+                    <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+                    <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+                    <div style="margin-bottom:15px;width: 100%;">
+                        <textarea id="json_editor_textarea" name="json_code_content"
+                            style="width:100%; min-height:450px; font-family:monospace;"
+                            class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
+                    </div>
+                    <input type="submit" name="save_json_btn" class="button button-primary button-large"
+                        value="Commit Matrix Code Updates" />
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php
 	}
 }
