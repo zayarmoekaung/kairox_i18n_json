@@ -50,6 +50,9 @@ class Native_JSON_i18n_Plugin {
 		add_action( 'init', array( $this, 'register_elementor_widgets' ) );
 		add_action( 'widgets_init', array( $this, 'register_wp_widget' ) );
 
+		// Intercept Elementor widget outputs to process string expressions inside config bounds
+        add_filter( 'elementor/widget/render_content', array( $this, 'parse_elementor_widget_shortcodes' ), 10, 2 );
+
 		$this->admin->register_hooks();
 		$this->runtime->register_hooks();
 	}
@@ -205,4 +208,28 @@ class Native_JSON_i18n_Plugin {
 	public function dynamic_post_content( $content ) {
 		return $this->runtime->dynamic_post_content( $content );
 	}
+
+	/**
+     * Intercept Elementor widgets to parse shortcodes inside text and URL properties.
+     *
+     * @param string $content The widget output HTML template.
+     * @param object $widget  The active Elementor widget wrapper context.
+     * @return string
+     */
+    public function parse_elementor_widget_shortcodes( $content, $widget ) {
+        if ( 'button' === $widget->get_name() ) {
+            $settings = $widget->get_settings_for_display();
+            
+            // 1. Force evaluation on button raw textual labels
+            if ( ! empty( $settings['text'] ) ) {
+                $content = str_replace( $settings['text'], do_shortcode( $settings['text'] ), $content );
+            }
+            
+            // 2. Force evaluation on button hyper-links targets
+            if ( ! empty( $settings['link']['url'] ) ) {
+                $content = str_replace( $settings['link']['url'], esc_url( do_shortcode( $settings['link']['url'] ) ), $content );
+            }
+        }
+        return $content;
+    }
 }
