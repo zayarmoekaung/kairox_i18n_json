@@ -290,8 +290,9 @@ class Native_JSON_i18n_Admin {
 						<h2 style="margin:0;">Editing Dictionary Configuration Asset: <span style="color:#007cba;"><?php echo esc_html( strtoupper( $selected ) ); ?></span></h2>
 					</div>
 
-					<div style="background:#f6f7f7; padding:12px; margin-bottom:15px; border-left:4px solid #72777c; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-						<form method="POST" action="" style="margin:0;">
+				<div style="background:#f6f7f7; padding:12px; margin-bottom:15px; border-left:4px solid #72777c; display:flex; flex-direction:row; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+						<div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:4px; width:100%;">
+							<form method="POST" action="" style="margin:0;">
 							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
 							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
 							<input type="submit" name="export_json_btn" class="button button-secondary" value="⬇ Export Raw JSON File" />
@@ -304,16 +305,17 @@ class Native_JSON_i18n_Admin {
 							<input type="submit" name="import_json_btn" class="button button-secondary" value="⬆ Overwrite via Import" onclick="return confirm('Warning: Proceeding will instantly clear and replace all current keys for this language file. Continue?');" />
 						</form>
 
-				<form method="POST" action="" style="margin:0;">
-					<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-					<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
-					<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
-				</form>
-						<div style="margin-bottom:15px;width: 100%;">
-							<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
+						<form method="POST" action="" style="margin:0;">
+							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+							<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
+						</form>
 						</div>
+				<div style="margin-bottom:15px;width: 100%;">
+					<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
+				</div>
 
-						<input type="submit" name="save_json_btn" class="button button-primary button-large" value="Commit Matrix Code Updates" />
+				<input type="submit" name="save_json_btn" class="button button-primary button-large" value="Commit Matrix Code Updates" />
 					</form>
 				</div>
 			</div>
