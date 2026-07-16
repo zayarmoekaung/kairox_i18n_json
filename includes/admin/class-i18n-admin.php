@@ -251,7 +251,7 @@ class Native_JSON_i18n_Admin {
         <div
             style="flex:1; min-width:280px; background:#fff; padding:20px; border:1px solid #ccd0d4; border-radius:4px; box-shadow:0 1px 1px rgba(0,0,0,.04);">
             <h3>Add System Language Tracking</h3>
-            <form method="POST" action="">
+            <form method="POST" action="" style="width:100%; margin-bottom:20px;">
                 <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
                 <p>
                     <label>ISO Language Code (e.g., 'th', 'fr', 'my')</label><br />

@@ -21,7 +21,7 @@ class Native_JSON_i18n_Elementor_Language_Switcher_Widget extends Widget_Base {
 	}
 
 	public function get_categories() {
-		return array( 'kairox-json-i18n' );
+		return array( 'general' );
 	}
 
 	protected function register_controls() {
