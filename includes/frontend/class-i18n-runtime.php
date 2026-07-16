@@ -42,6 +42,8 @@ class Native_JSON_i18n_Runtime {
 		add_filter( 'nav_menu_item_url', array( $this, 'append_language_to_url' ), 10, 1 );
 		add_filter( 'home_url', array( $this, 'append_language_to_home_url' ), 10, 4 );
 		add_filter( 'page_link', array( $this, 'append_language_to_url' ), 10, 1 );
+		add_filter( 'elementor/widget/render_content', array( $this, 'parse_elementor_widget_shortcodes' ), 10, 2 );
+		add_action( 'wp_footer', array( $this, 'inject_url_persistence_script' ) );
 	}
 
 	/**
@@ -409,4 +411,78 @@ class Native_JSON_i18n_Runtime {
 
 		return add_query_arg( 'lang', $current_lang, $url );
 	}
+
+	/**
+     * Intercept Elementor widgets globally to parse static text areas like Buttons.
+     *
+     * @param string $content The widget output HTML template.
+     * @param object $widget  The active Elementor widget wrapper context.
+     * @return string
+     */
+    public function parse_elementor_widget_shortcodes( $content, $widget ) {
+        if ( 'button' === $widget->get_name() ) {
+            // Apply do_shortcode directly across the compiled HTML template structure 
+            return do_shortcode( $content );
+        }
+        return $content;
+    }
+	/**
+ * Injects a fast, lightweight JavaScript handler into the footer.
+ * This intercepts link clicks (like Elementor buttons or inline text anchors)
+ * and appends the active language query parameter before navigating away.
+ */
+public function inject_url_persistence_script() {
+    if ( is_admin() ) {
+        return;
+    }
+
+    // Capture active runtime language parameter context cleanly
+    if ( isset( $_GET['lang'] ) ) {
+        $current_lang = sanitize_key( wp_unslash( $_GET['lang'] ) );
+    } else {
+        $current_lang = $this->get_current_runtime_lang();
+    }
+    
+    ?>
+    <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var currentLang = <?php echo json_encode( $current_lang ); ?>;
+        var siteHost = window.location.host;
+
+        document.body.addEventListener('click', function(event) {
+            // Find if the clicked element (or its parents) is an anchor link
+            var anchor = event.target.closest('a');
+            if (!anchor) return;
+
+            var href = anchor.getAttribute('href');
+
+            // Skip handling if it is an empty link, anchor block scroll, javascript action, or admin target
+            if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.includes('wp-admin')) {
+                return;
+            }
+
+            try {
+                // Parse target url safely
+                var targetUrl = new URL(anchor.href);
+
+                // Only touch internal links belonging to our website domain
+                if (targetUrl.host === siteHost) {
+                    // Check if the query parameter is already there
+                    if (!targetUrl.searchParams.has('lang')) {
+                        targetUrl.searchParams.set('lang', currentLang);
+                        anchor.href = targetUrl.toString();
+                    }
+                }
+            } catch (e) {
+                // Fallback catch for relative paths if the browser fails object creation context
+                if (!href.includes('://') && !href.includes('lang=')) {
+                    var separator = href.includes('?') ? '&' : '?';
+                    anchor.setAttribute('href', href + separator + 'lang=' + currentLang);
+                }
+            }
+        });
+    });
+    </script>
+    <?php
+}
 }
