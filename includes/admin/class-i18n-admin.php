@@ -291,7 +291,6 @@ class Native_JSON_i18n_Admin {
 					</div>
 
 				<div style="background:#f6f7f7; padding:12px; margin-bottom:15px; border-left:4px solid #72777c; display:flex; flex-direction:row; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-						<div style="flex:1; min-width:200px; display:flex; flex-direction:column; gap:4px; width:100%;">
 							<form method="POST" action="" style="margin:0;">
 							<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
 							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
@@ -310,7 +309,7 @@ class Native_JSON_i18n_Admin {
 							<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
 							<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
 						</form>
-						</div>
+					
 				<div style="margin-bottom:15px;width: 100%;">
 					<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
 				</div>

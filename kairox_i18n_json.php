@@ -30,4 +30,45 @@ require_once $plugin_dir . 'includes/admin/class-i18n-admin.php';
 require_once $plugin_dir . 'includes/frontend/class-i18n-runtime.php';
 require_once $plugin_dir . 'includes/class-i18n-plugin.php';
 
+/**
+ * Plugin activation hook.
+ * Ensures proper initialization of plugin directories and configuration.
+ */
+function native_i18n_activate() {
+	// Create storage directory
+	$languages_dir = plugin_dir_path( __FILE__ ) . 'includes/languages';
+	if ( ! is_dir( $languages_dir ) ) {
+		wp_mkdir_p( $languages_dir );
+	}
+
+	// Initialize default configuration if not present
+	if ( ! get_option( NATIVE_I18N_OPTION_NAME ) ) {
+		$default_config = array(
+			'default_language' => 'en',
+			'active_languages' => array( 'en' ),
+			'language_names' => array( 'en' => 'English' ),
+		);
+		update_option( NATIVE_I18N_OPTION_NAME, $default_config );
+	}
+
+	// Flush rewrite rules
+	flush_rewrite_rules();
+}
+
+/**
+ * Plugin deactivation hook.
+ * Performs cleanup of temporary data while preserving user configuration.
+ */
+function native_i18n_deactivate() {
+	// Flush rewrite rules
+	flush_rewrite_rules();
+
+	// Optionally clear any transients
+	// delete_transient( 'native_i18n_cache_key' );
+}
+
+// Register activation and deactivation hooks
+register_activation_hook( __FILE__, 'native_i18n_activate' );
+register_deactivation_hook( __FILE__, 'native_i18n_deactivate' );
+
 new Native_JSON_i18n_Plugin();
