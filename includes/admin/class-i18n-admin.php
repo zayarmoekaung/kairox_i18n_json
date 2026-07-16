@@ -325,7 +325,7 @@ class Native_JSON_i18n_Admin {
                     <input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File"
                         onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
                 </form>
-                <form method="POST" action="">
+                <form method="POST" action="" style="width:100%;">
                     <?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
                     <input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
                     <div style="margin-bottom:15px;width: 100%;">
