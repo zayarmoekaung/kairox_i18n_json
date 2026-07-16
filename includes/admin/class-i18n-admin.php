@@ -309,7 +309,7 @@ class Native_JSON_i18n_Admin {
 					<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
 					<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
 				</form>
-						<div style="margin-bottom:15px;">
+						<div style="margin-bottom:15px;width: 100%;">
 							<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
 						</div>
 
