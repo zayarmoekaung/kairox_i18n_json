@@ -16,6 +16,20 @@ A lightweight WordPress localization plugin that uses JSON files for language st
 2. Activate the plugin from the WordPress admin dashboard
 3. Configure languages in the plugin settings
 
+### Automatic Setup
+
+Upon activation, the plugin automatically:
+- Creates the `includes/languages` directory if it doesn't exist
+- Initializes default configuration with English as the default language
+- Flushes WordPress rewrite rules for proper routing
+
+### Clean Uninstall
+
+When uninstalling the plugin:
+- All plugin configuration is removed from the database
+- Language files and the `includes/languages` directory are completely removed
+- No orphaned folders or files are left behind
+
 ## Usage
 
 ### Shortcode
@@ -59,7 +73,16 @@ Each JSON file should be a simple key/value object, or nested objects for scoped
 
 The shortcode `[i18n key="hello.world"]` will output the nested value `Hello, world!`.
 
+## Language Persistence
+
+The plugin automatically maintains your language selection across all page navigation:
+- When you switch languages using the language switcher, the `lang` query parameter is added to the URL
+- The language parameter is automatically preserved in all internal site links (posts, pages, categories, menus, homepage)
+- This ensures consistent translation display when navigating between different pages
+- Users see the correct translated content on every page they visit
+
 ## Notes
 
 - The current language is stored in a cookie and switched using the `lang` query parameter
 - Custom translation labels are sourced from plugin configuration when available
+- All internal links automatically include the language parameter for seamless navigation

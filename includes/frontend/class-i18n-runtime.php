@@ -34,6 +34,14 @@ class Native_JSON_i18n_Runtime {
 		add_shortcode( 'lang_switcher', array( $this, 'render_language_switcher' ) );
 		add_filter( 'the_title', array( $this, 'dynamic_post_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'dynamic_post_content' ), 1 );
+		
+		// Append language parameter to internal links for persistence
+		add_filter( 'post_link', array( $this, 'append_language_to_url' ), 10, 1 );
+		add_filter( 'post_type_link', array( $this, 'append_language_to_url' ), 10, 1 );
+		add_filter( 'term_link', array( $this, 'append_language_to_url' ), 10, 1 );
+		add_filter( 'nav_menu_item_url', array( $this, 'append_language_to_url' ), 10, 1 );
+		add_filter( 'home_url', array( $this, 'append_language_to_home_url' ), 10, 4 );
+		add_filter( 'page_link', array( $this, 'append_language_to_url' ), 10, 1 );
 	}
 
 	/**
@@ -335,5 +343,70 @@ class Native_JSON_i18n_Runtime {
 		$processed_content = apply_filters( 'the_content', $translated_content );
 		add_filter( 'the_content', array( $this, 'dynamic_post_content' ), 1 );
 		return $processed_content;
+	}
+
+	/**
+	 * Append the current language parameter to a URL to retain language selection.
+	 *
+	 * @param string $url The URL to modify.
+	 * @return string
+	 */
+	public function append_language_to_url( $url ) {
+		// Don't modify admin URLs
+		if ( is_admin() ) {
+			return $url;
+		}
+
+		$current_lang = $this->get_current_runtime_lang();
+		$config = $this->config->get_i18n_config();
+
+		// Only append if current language is not the default
+		if ( $current_lang === $config['default'] ) {
+			return $url;
+		}
+
+		// Avoid adding lang parameter multiple times
+		if ( strpos( $url, 'lang=' ) !== false ) {
+			return $url;
+		}
+
+		// Don't modify external links
+		$site_url = home_url();
+		if ( strpos( $url, $site_url ) === false ) {
+			return $url;
+		}
+
+		return add_query_arg( 'lang', $current_lang, $url );
+	}
+
+	/**
+	 * Append the current language parameter to home URL.
+	 *
+	 * @param string $url    The complete home URL including scheme and path.
+	 * @param string $path   Path relative to home URL.
+	 * @param string $scheme The scheme to use.
+	 * @param int    $blog_id Blog ID.
+	 * @return string
+	 */
+	public function append_language_to_home_url( $url, $path, $scheme, $blog_id ) {
+		// Don't modify admin URLs
+		if ( is_admin() ) {
+			return $url;
+		}
+
+		$current_lang = $this->get_current_runtime_lang();
+		$config = $this->config->get_i18n_config();
+
+		// Only append if current language is not the default
+		if ( $current_lang === $config['default'] ) {
+			return $url;
+		}
+
+		// Avoid adding lang parameter multiple times
+		if ( strpos( $url, 'lang=' ) !== false ) {
+			return $url;
+		}
+
+		return add_query_arg( 'lang', $current_lang, $url );
 	}
 }
