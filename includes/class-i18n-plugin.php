@@ -46,6 +46,7 @@ class Native_JSON_i18n_Plugin {
 	private function register_hooks() {
 		add_action( 'init', array( $this, 'bootstrap' ) );
 		add_action( 'init', array( $this, 'handle_i18n_cookie_routing' ) );
+		add_action( 'elementor/elements/categories_manager', array( $this, 'register_my_plugin_category' ) );
 		add_action( 'init', array( $this, 'register_blocks' ) );
 		add_action( 'init', array( $this, 'register_elementor_widgets' ) );
 		add_action( 'widgets_init', array( $this, 'register_wp_widget' ) );
@@ -117,7 +118,30 @@ class Native_JSON_i18n_Plugin {
 		require_once dirname( __DIR__ ) . '/includes/class-i18n-widget.php';
 		register_widget( 'Native_JSON_i18n_Language_Switcher_Widget' );
 	}
-
+	/**
+	 * Register Custom Category
+	 */
+	function register_my_plugin_category( $elements_manager ) {
+    $elements_manager->add_category(
+        'kairox-json-i18n', 
+        [
+            'title' => esc_html__( 'Kairox JSON i18n', 'native-json-i18n' ),
+			'icon' => 'fa fa-language',
+        ]
+    );
+	function register_my_block_category( $categories, $post ) {
+    return array_merge(
+        $categories,
+        [
+            [
+                'slug'  => 'kairox-json-i18n',
+                'title' => __( 'Kairox JSON i18n', 'native-json-i18n' ),
+                'icon'  => null, 
+            ],
+        ]
+    );
+}
+}
 	/**
 	 * Ensure the config option exists with safe defaults.
 	 */

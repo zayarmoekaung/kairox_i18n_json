@@ -1,7 +1,7 @@
 {
   "name": "native-json-i18n/language-switcher",
   "title": "Language Switcher",
-  "category": "widgets",
+  "category": "kairox-json-i18n",
   "icon": "translation",
   "description": "A visual language switcher for the multilingual site.",
   "supports": {
