@@ -91,6 +91,21 @@ class Native_JSON_i18n_Storage {
 	}
 
 	/**
+	 * Delete a language file from disk.
+	 *
+	 * @param string $lang
+	 * @return bool
+	 */
+	public function delete_language_file( $lang ) {
+		$file_path = $this->get_language_file_path( $lang );
+		if ( ! file_exists( $file_path ) ) {
+			return false;
+		}
+
+		return unlink( $file_path );
+	}
+
+	/**
 	 * Ensure a default language file exists.
 	 *
 	 * @param string $default_lang

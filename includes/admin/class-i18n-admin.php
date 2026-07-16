@@ -93,6 +93,10 @@ class Native_JSON_i18n_Admin {
 			$this->handle_export_language_file_action();
 		}
 
+		if ( isset( $_POST['delete_json_btn'] ) ) {
+			$this->handle_delete_language_file_action();
+		}
+
 		if ( isset( $_POST['import_json_btn'] ) && isset( $_FILES['import_file'] ) ) {
 			$this->handle_import_language_file_action();
 		}
@@ -186,6 +190,33 @@ class Native_JSON_i18n_Admin {
 	}
 
 	/**
+	 * Delete a language file and remove it from configuration.
+	 */
+	private function handle_delete_language_file_action() {
+		$active_lang = sanitize_key( wp_unslash( $_POST['active_editing_lang'] ) );
+		$config = $this->config->get_i18n_config();
+
+		if ( ! $this->config->is_allowed_language( $active_lang, $config ) ) {
+			return;
+		}
+
+		if ( isset( $config['default'] ) && $config['default'] === $active_lang ) {
+			wp_die( 'Cannot delete the default language file. Change the default language first.' );
+		}
+
+		if ( $this->storage->delete_language_file( $active_lang ) ) {
+			$config['allowed'] = array_values( array_diff( $config['allowed'], array( $active_lang ) ) );
+			if ( isset( $config['labels'][ $active_lang ] ) ) {
+				unset( $config['labels'][ $active_lang ] );
+			}
+			$this->config->save_i18n_config( $config );
+		}
+
+		wp_redirect( add_query_arg( array( 'page' => 'json-i18n-dashboard', 'status' => 'deleted' ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	/**
 	 * Render the admin dashboard view.
 	 */
 	public function render_admin_view() {
@@ -209,6 +240,8 @@ class Native_JSON_i18n_Admin {
 							echo 'New localization target tracked and created successfully.';
 						} elseif ( 'imported' === $status ) {
 							echo 'JSON matrix successfully imported and parsed into local storage.';
+						} elseif ( 'deleted' === $status ) {
+							echo 'Language JSON file deleted and locale tracking removed.';
 						}
 					?></p>
 				</div>
@@ -235,9 +268,18 @@ class Native_JSON_i18n_Admin {
 					<h3>Managed Locales</h3>
 					<ul style="padding:0; margin:0; list-style:none;">
 						<?php foreach ( $config['allowed'] as $code ) : ?>
-							<li style="margin-bottom:8px; padding:10px; background:<?php echo $selected === $code ? '#f0f6fa' : '#fafafa'; ?>; border:1px solid <?php echo $selected === $code ? '#007cba' : '#ddd'; ?>; border-radius:3px; display:flex; justify-content:space-between; align-items:center;">
+							<li style="margin-bottom:8px; padding:10px; background:<?php echo $selected === $code ? '#f0f6fa' : '#fafafa'; ?>; border:1px solid <?php echo $selected === $code ? '#007cba' : '#ddd'; ?>; border-radius:3px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
 								<strong><?php echo esc_html( isset( $config['labels'][ $code ] ) ? $config['labels'][ $code ] : strtoupper( $code ) ); ?> (<code><?php echo esc_html( $code ); ?></code>)</strong>
-								<a href="<?php echo esc_url( add_query_arg( 'edit_lang', $code ) ); ?>" class="button button-small <?php echo $selected === $code ? 'button-primary' : ''; ?>">Edit JSON</a>
+								<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+									<a href="<?php echo esc_url( add_query_arg( 'edit_lang', $code ) ); ?>" class="button button-small <?php echo $selected === $code ? 'button-primary' : ''; ?>">Edit JSON</a>
+									<?php if ( isset( $config['default'] ) && $config['default'] !== $code ) : ?>
+										<form method="POST" action="" style="margin:0; display:inline;">
+											<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+											<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $code ); ?>" />
+											<input type="submit" name="delete_json_btn" class="button button-small button-danger" value="Delete" onclick="return confirm('Delete this locale and remove its JSON file?');" />
+										</form>
+									<?php endif; ?>
+								</div>
 							</li>
 						<?php endforeach; ?>
 					</ul>
@@ -261,12 +303,12 @@ class Native_JSON_i18n_Admin {
 							<input type="file" name="import_file" accept=".json" required style="max-width:220px;" />
 							<input type="submit" name="import_json_btn" class="button button-secondary" value="⬆ Overwrite via Import" onclick="return confirm('Warning: Proceeding will instantly clear and replace all current keys for this language file. Continue?');" />
 						</form>
-					</div>
 
-					<form method="POST" action="">
-						<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
-						<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
-
+				<form method="POST" action="" style="margin:0;">
+					<?php wp_nonce_field( 'i18n_action_nonce', 'i18n_nonce' ); ?>
+					<input type="hidden" name="active_editing_lang" value="<?php echo esc_attr( $selected ); ?>" />
+					<input type="submit" name="delete_json_btn" class="button button-danger" value="🗑 Delete JSON File" onclick="return confirm('This will permanently remove the JSON file and unregister the language. Are you sure?');" />
+				</form>
 						<div style="margin-bottom:15px;">
 							<textarea id="json_editor_textarea" name="json_code_content" style="width:100%; min-height:450px; font-family:monospace;" class="widefat"><?php echo esc_textarea( $editor_data ); ?></textarea>
 						</div>

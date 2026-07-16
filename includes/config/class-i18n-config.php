@@ -12,8 +12,8 @@ class Native_JSON_i18n_Config {
 	 */
 	public function get_default_config() {
 		return array(
-			'allowed' => array( 'en', 'es' ),
-			'labels'  => array( 'en' => 'English', 'es' => 'Español' ),
+			'allowed' => array( 'en' ),
+			'labels'  => array( 'en' => 'English' ),
 			'default' => 'en',
 		);
 	}
