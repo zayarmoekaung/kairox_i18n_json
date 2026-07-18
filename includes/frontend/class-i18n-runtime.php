@@ -43,6 +43,7 @@ class Native_JSON_i18n_Runtime {
 		add_filter( 'home_url', array( $this, 'append_language_to_home_url' ), 10, 4 );
 		add_filter( 'page_link', array( $this, 'append_language_to_url' ), 10, 1 );
 		add_filter( 'elementor/widget/render_content', array( $this, 'parse_elementor_widget_shortcodes' ), 10, 2 );
+		add_filter( 'language_attributes', array( $this, 'filter_language_attributes' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'inject_url_persistence_script' ) );
 	}
 
@@ -77,6 +78,31 @@ class Native_JSON_i18n_Runtime {
 		}
 
 		return isset( $config['default'] ) ? $config['default'] : 'en';
+	}
+
+	/**
+	 * Update the page language attribute to match the active runtime language.
+	 *
+	 * @param string $output Existing language attribute markup.
+	 * @param string $doctype Optional document type.
+	 * @return string
+	 */
+	public function filter_language_attributes( $output = '', $doctype = '' ) {
+		$lang = $this->get_current_runtime_lang();
+		if ( empty( $lang ) ) {
+			return $output;
+		}
+
+		$language_code = preg_replace( '/[^a-zA-Z0-9_-]/', '', $lang );
+		if ( '' === $language_code ) {
+			return $output;
+		}
+
+		if ( preg_match( '/\blang=["\']([^"\']*)["\']/i', $output ) ) {
+			return preg_replace( '/\blang=["\']([^"\']*)["\']/i', 'lang="' . esc_attr( $language_code ) . '"', $output, 1 );
+		}
+
+		return trim( $output ) . ' lang="' . esc_attr( $language_code ) . '"';
 	}
 
 	/**
